@@ -3,6 +3,7 @@
 class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
+  before_action :authorize_random_eyecatch!, only: %i[create update]
   before_action :set_blog, only: %i[edit update destroy]
 
   def index
@@ -57,5 +58,12 @@ class BlogsController < ApplicationController
 
   def blog_params
     params.expect(blog: %i[title content secret random_eyecatch])
+  end
+
+  def authorize_random_eyecatch!
+    if blog_params[:random_eyecatch] && !current_user.premium
+      head :bad_request
+      return
+    end
   end
 end
