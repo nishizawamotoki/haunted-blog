@@ -13,11 +13,9 @@ class BlogsController < ApplicationController
   def show
     blog = Blog.find(params[:id])
 
-    if blog.user == current_user || !blog.secret
-      @blog = blog
-    else
-      raise ActiveRecord::RecordNotFound
-    end
+    raise ActiveRecord::RecordNotFound if blog.user != current_user && blog.secret
+
+    @blog = blog
   end
 
   def new
@@ -61,9 +59,6 @@ class BlogsController < ApplicationController
   end
 
   def authorize_random_eyecatch!
-    if blog_params[:random_eyecatch] && !current_user.premium
-      head :bad_request
-      return
-    end
+    head :bad_request and return if blog_params[:random_eyecatch] && !current_user.premium
   end
 end
